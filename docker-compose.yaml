@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+ 
+  AirFreight:
+    restart: always
+    image: airfreight
+    build: 
+      context: ./AirFreight
+      dockerfile: Dockerfile
+    ports:
+      - '61:6000'
+    volumes:
+      - shared-volume:/home/node/app/shared
+
+
+     
+  OceanFreight:
+    restart: always
+    image: oceanfreight
+    build: ./OceanFreight
+    ports:
+      - '62:6000'
+    volumes:
+      - shared-volume:/home/node/app/shared
+
+
+
+
+  # Courier:
+    # restart: always
+    # image: courier
+    # build: ./Courier
+    # ports:
+    #   - '63:6000'
+    # volumes:
+    #   #  - ./zipa-backend:/src/
+    #    - nodemodules:/src/node_modules
+
+  Auth:
+    restart: always
+    image: auth
+    build: ./authentication
+    ports:
+      - '64:6000'
+    volumes:
+      - shared-volume:/home/node/app/shared
+
+
+  nginx:
+    build: ./Nginx
+    ports:
+    - '90:90'
+    links:
+        - AirFreight
+        - OceanFreight
+        - Auth
+        # - Courier
+    volumes:
+      - shared-volume:/home/node/app/shared
+    depends_on:
+      - AirFreight
+      - OceanFreight
+      - Auth
+    # - Courier
+
+
+volumes:
+  shared-volume:
